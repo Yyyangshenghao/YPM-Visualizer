@@ -1,5 +1,4 @@
 import clc from 'cli-color';
-import checkAuthToken from '../utils/checkAuthToken';
 
 export async function startNeteaseMusicApi() {
   console.log(`${clc.redBright('[NetEase API]')} initiating NCM API`);

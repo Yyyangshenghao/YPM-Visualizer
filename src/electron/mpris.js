@@ -46,13 +46,17 @@ export function createMpris(window) {
     player.getPosition = () => position * 1000 * 1000;
     try {
       player.seeked(position * 1000 * 1000);
-    } catch {}
+    } catch {
+      // 忽略 D-Bus 断连时 seeked 抛出的异常
+    }
   });
 
   ipcMain.on('seeked', (e, position) => {
     try {
       player.seeked(position * 1000 * 1000);
-    } catch {}
+    } catch {
+      // 忽略 D-Bus 断连时 seeked 抛出的异常
+    }
   });
 
   ipcMain.on('switchRepeatMode', (e, mode) => {

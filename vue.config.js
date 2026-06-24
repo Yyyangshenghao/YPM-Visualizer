@@ -44,7 +44,10 @@ module.exports = {
   },
   chainWebpack(config) {
     // webpack HMR 使用 require("events")，显式 alias 到浏览器 polyfill
-    config.resolve.alias.set('events', resolve('node_modules/events/events.js'));
+    config.resolve.alias.set(
+      'events',
+      resolve('node_modules/events/events.js')
+    );
 
     config.module.rules.delete('svg');
     config.module.rule('svg').exclude.add(resolve('src/assets/icons')).end();
