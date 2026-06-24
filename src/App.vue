@@ -18,9 +18,15 @@
     <Toast />
     <ModalAddTrackToPlaylist v-if="isAccountLoggedIn" />
     <ModalNewPlaylist v-if="isAccountLoggedIn" />
-    <transition v-if="enablePlayer" name="slide-up">
+    <transition
+      v-if="enablePlayer && settings.lyricsMode !== 'visualizer'"
+      name="slide-up"
+    >
       <Lyrics v-show="showLyrics" />
     </transition>
+    <VisualizerLyrics
+      v-if="enablePlayer && settings.lyricsMode === 'visualizer' && showLyrics"
+    />
   </div>
 </template>
 
@@ -34,6 +40,7 @@ import Toast from './components/Toast.vue';
 import { ipcRenderer } from './electron/ipcRenderer';
 import { isAccountLoggedIn, isLooseLoggedIn } from '@/utils/auth';
 import Lyrics from './views/lyrics.vue';
+import VisualizerLyrics from './views/visualizerLyrics.vue';
 import { mapState } from 'vuex';
 
 export default {
@@ -45,6 +52,7 @@ export default {
     ModalAddTrackToPlaylist,
     ModalNewPlaylist,
     Lyrics,
+    VisualizerLyrics,
     Scrollbar,
   },
   data() {
@@ -86,6 +94,8 @@ export default {
       if (e.code === 'Space') {
         if (e.target.tagName === 'INPUT') return false;
         if (this.$route.name === 'mv') return false;
+        // 3D 歌词模式下由 VisualizerLyrics 组件接管快捷键
+        if (this.settings.lyricsMode === 'visualizer') return false;
         e.preventDefault();
         this.player.playOrPause();
       }

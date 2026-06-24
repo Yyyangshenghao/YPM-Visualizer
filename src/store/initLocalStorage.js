@@ -24,6 +24,7 @@ let localStorage = {
     nyancatStyle: false,
     showLyricsTranslation: true,
     lyricsBackground: true,
+    lyricsMode: 'classic', // 'classic' | 'visualizer'
     enableOsdlyricsSupport: false,
     closeAppOption: 'ask',
     enableDiscordRichPresence: false,

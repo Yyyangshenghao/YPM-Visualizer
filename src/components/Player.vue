@@ -174,6 +174,14 @@
             @click.native="toggleLyrics"
             ><svg-icon icon-class="arrow-up"
           /></button-icon>
+          <button-icon
+            class="lyrics-button"
+            title="3D 可视化"
+            style="margin-left: 4px"
+            @click.native="switchToVisualizer"
+          >
+            <span class="d3-switch">3D</span>
+          </button-icon>
         </div>
       </div>
     </div>
@@ -232,6 +240,28 @@ export default {
   methods: {
     ...mapMutations(['toggleLyrics']),
     ...mapActions(['showToast', 'likeATrack']),
+    async switchToVisualizer() {
+      // 在用户手势上下文中预先创建/resume AudioContext
+      // 必须 await resume()，否则 AudioContext 可能在 suspended 状态下被 visualizerLyrics
+      // 的 createMediaElementSource 接管音频流，导致浏览器中听不到声音（Electron 不受影响）
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!window.yesplaymusic?._sharedAudioCtx) {
+        window.yesplaymusic = window.yesplaymusic || {};
+        window.yesplaymusic._sharedAudioCtx = new AudioContext();
+      }
+      const ctx = window.yesplaymusic._sharedAudioCtx;
+      if (ctx.state === 'suspended') {
+        await ctx.resume();
+      }
+
+      this.$store.commit('updateSettings', {
+        key: 'lyricsMode',
+        value: 'visualizer',
+      });
+      if (!this.$store.state.showLyrics) {
+        this.toggleLyrics();
+      }
+    },
     handleClick(event) {
       if (event.target == this.mouseDownTarget) {
         this.toggleLyrics();
@@ -496,5 +526,11 @@ export default {
   &:active {
     transform: unset;
   }
+}
+
+.d3-switch {
+  color: var(--color-text);
+  font-size: 13px;
+  opacity: 0.88;
 }
 </style>

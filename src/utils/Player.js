@@ -371,6 +371,10 @@ export default class {
       setTrayLikeState(store.state.liked.songs.includes(this.currentTrack.id));
     }
     this.setOutputDevice();
+    // 通知 AudioAnalyzer 音源已切换
+    if (window.yesplaymusic && window.yesplaymusic.onAudioSourceChanged) {
+      window.yesplaymusic.onAudioSourceChanged(this.getAudioElement());
+    }
   }
   _getAudioSourceBlobURL(data) {
     // Create a new object URL.
@@ -996,5 +1000,17 @@ export default class {
   }
   removeTrackFromQueue(index) {
     this._playNextList.splice(index, 1);
+  }
+
+  /**
+   * 获取当前 Howler 实例内部的 HTMLAudioElement，
+   * 供 AudioAnalyzer 创建 MediaElementAudioSourceNode。
+   * @returns {HTMLAudioElement|null}
+   */
+  getAudioElement() {
+    if (!this._howler || !this._howler._sounds) return null;
+    const sound = this._howler._sounds[0];
+    if (!sound) return null;
+    return sound._node instanceof HTMLAudioElement ? sound._node : null;
   }
 }

@@ -223,6 +223,12 @@
               >
                 <span class="lyric-switch-icon">音</span>
               </button-icon>
+              <button-icon
+                title="3D 可视化歌词"
+                @click.native="switchToVisualizer"
+              >
+                <span class="lyric-switch-icon">3D</span>
+              </button-icon>
             </div>
           </div>
         </div>
@@ -451,14 +457,17 @@ export default {
       this.getLyric();
       this.getCoverColor();
     },
-    showLyrics(show) {
-      if (show) {
-        this.setLyricsInterval();
-        this.$store.commit('enableScrolling', false);
-      } else {
-        clearInterval(this.lyricsInterval);
-        this.$store.commit('enableScrolling', true);
-      }
+    showLyrics: {
+      immediate: true,
+      handler(show) {
+        if (show) {
+          this.setLyricsInterval();
+          this.$store.commit('enableScrolling', false);
+        } else {
+          clearInterval(this.lyricsInterval);
+          this.$store.commit('enableScrolling', true);
+        }
+      },
     },
   },
   created() {
@@ -608,6 +617,25 @@ export default {
     switchLyricType() {
       this.lyricType =
         this.lyricType === 'translation' ? 'romaPronunciation' : 'translation';
+    },
+    async switchToVisualizer() {
+      // 在用户手势上下文中预先创建/resume AudioContext
+      // 必须 await resume()，否则 AudioContext 可能在 suspended 状态下被 visualizerLyrics
+      // 的 createMediaElementSource 接管音频流，导致浏览器中听不到声音
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!window.yesplaymusic?._sharedAudioCtx) {
+        window.yesplaymusic = window.yesplaymusic || {};
+        window.yesplaymusic._sharedAudioCtx = new AudioContext();
+      }
+      const ctx = window.yesplaymusic._sharedAudioCtx;
+      if (ctx.state === 'suspended') {
+        await ctx.resume();
+      }
+
+      this.$store.commit('updateSettings', {
+        key: 'lyricsMode',
+        value: 'visualizer',
+      });
     },
     formatTrackTime(value) {
       return formatTrackTime(value);
