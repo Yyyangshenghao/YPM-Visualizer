@@ -105,7 +105,9 @@ class Background {
     if (!app.requestSingleInstanceLock()) return app.quit();
 
     // start netease music api
-    this.neteaseMusicAPI = startNeteaseMusicApi();
+    this.neteaseMusicAPI = startNeteaseMusicApi().catch(err => {
+      console.error('Failed to start NeteaseMusicApi:', err);
+    });
 
     // create Express app
     this.createExpressApp();
@@ -155,6 +157,32 @@ class Background {
     const expressApp = express();
     expressApp.use('/', express.static(__dirname + '/'));
     expressApp.use('/api', expressProxy('http://127.0.0.1:10754'));
+    // 健康检查端点：验证 API 服务是否可达
+    expressApp.get('/__health', async (req, res) => {
+      try {
+        const http = require('http');
+        const check = await new Promise((resolve, reject) => {
+          const r = http.get(
+            'http://127.0.0.1:10754/login/qr/key?timerstamp=' + Date.now(),
+            resp => {
+              let data = '';
+              resp.on('data', c => (data += c));
+              resp.on('end', () =>
+                resolve({ status: resp.statusCode, body: data.slice(0, 200) })
+              );
+            }
+          );
+          r.on('error', reject);
+          r.setTimeout(3000, () => {
+            r.destroy();
+            reject(new Error('timeout'));
+          });
+        });
+        res.json({ ok: true, api: check });
+      } catch (e) {
+        res.json({ ok: false, error: e.message });
+      }
+    });
     expressApp.use('/player', (req, res) => {
       this.window.webContents
         .executeJavaScript('window.yesplaymusic.player')
