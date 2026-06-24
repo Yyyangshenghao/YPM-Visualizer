@@ -13,15 +13,25 @@
  */
 const nativeAlert = (() => {
   if (process.env.IS_ELECTRON === true) {
-    const { dialog } = require('electron');
-    if (dialog) {
-      return message => {
-        var options = {
-          type: 'warning',
-          message,
+    try {
+      // 使用 window.require 避免 webpack 打包 electron 模块及其 Node.js 内置依赖（如 fs），
+      // 导致 webpack target: 'web' 时用空对象 {} mock fs，运行时 fs.existsSync 报错
+      // 项目中其他文件（Player.js, Win32Titlebar.vue 等）也用 window.require 绕过 webpack 静态分析
+      const { dialog } = window.require('electron');
+      if (dialog) {
+        return message => {
+          var options = {
+            type: 'warning',
+            message,
+          };
+          dialog.showMessageBoxSync(null, options);
         };
-        dialog.showMessageBoxSync(null, options);
-      };
+      }
+    } catch (e) {
+      console.warn(
+        '[nativeAlert] Failed to load electron dialog, falling back to alert:',
+        e.message
+      );
     }
   }
   return alert;

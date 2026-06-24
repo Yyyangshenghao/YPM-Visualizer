@@ -43,6 +43,9 @@ module.exports = {
     },
   },
   chainWebpack(config) {
+    // webpack HMR 使用 require("events")，显式 alias 到浏览器 polyfill
+    config.resolve.alias.set('events', resolve('node_modules/events/events.js'));
+
     config.module.rules.delete('svg');
     config.module.rule('svg').exclude.add(resolve('src/assets/icons')).end();
     config.module
@@ -68,9 +71,11 @@ module.exports = {
       .test(/\.js$/)
       .include.add(/node_modules/)
       .end()
+      .exclude.add(/node_modules\/webpack/)
+      .end()
       .use('esbuild-loader')
       .loader('esbuild-loader')
-      .options({ target: 'es2015', format: "cjs" })
+      .options({ target: 'es2015', format: 'cjs' })
       .end();
 
     // LimitChunkCountPlugin 可以通过合并块来对块进行后期处理。用以解决 chunk 包太多的问题
@@ -187,14 +192,15 @@ module.exports = {
           .end()
           .use('esbuild-loader')
           .loader('esbuild-loader')
-          .options({ target: 'es2015', format: "cjs" })
+          .options({ target: 'es2015', format: 'cjs' })
           .end();
       },
       // 渲染线程的配置文件
       chainWebpackRendererProcess: config => {
-        // 渲染线程的一些其他配置
         // Chain webpack config for electron renderer process only
-        // The following example will set IS_ELECTRON to true in your app
+        // 覆盖 electron-builder 设置的 'electron-renderer' target，
+        // 用 'web' 避免 NodeTargetPlugin 把 events 等 Node.js 内置模块 external 化
+        config.target('web');
         config.plugin('define').tap(args => {
           args[0]['IS_ELECTRON'] = true;
           return args;
