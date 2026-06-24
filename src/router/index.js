@@ -141,7 +141,13 @@ const router = new VueRouter({
 
 const originalPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function push(location) {
-  return originalPush.call(this, location).catch(err => err);
+  return originalPush.call(this, location).catch(err => {
+    // 生产环境下静默吞掉 NavigationDuplicated，但记录其他导航错误以便排查
+    if (err && err.name !== 'NavigationDuplicated') {
+      console.error('[Router] push failed:', err, 'location:', location);
+    }
+    return err;
+  });
 };
 
 router.beforeEach((to, from, next) => {

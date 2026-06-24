@@ -46,8 +46,8 @@
         <img
           class="avatar"
           :src="avatarUrl"
-          @click="showUserProfileMenu"
           loading="lazy"
+          @click="showUserProfileMenu"
         />
       </div>
     </nav>
@@ -162,9 +162,13 @@ export default {
     },
     toLogin() {
       if (process.env.IS_ELECTRON === true) {
-        this.$router.push({ name: 'loginAccount' });
+        this.$router.push({ name: 'loginAccount' }).catch(err => {
+          console.error('[Navbar] toLogin failed:', err);
+        });
       } else {
-        this.$router.push({ name: 'login' });
+        this.$router.push({ name: 'login' }).catch(err => {
+          console.error('[Navbar] toLogin failed:', err);
+        });
       }
     },
   },

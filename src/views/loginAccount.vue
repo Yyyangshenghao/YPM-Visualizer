@@ -233,35 +233,43 @@ export default {
       }
     },
     getQrCodeKey() {
-      return loginQrCodeKey().then(result => {
-        if (result.code === 200) {
-          this.qrCodeKey = result.data.unikey;
-          QRCode.toString(
-            `https://music.163.com/login?codekey=${this.qrCodeKey}`,
-            {
-              width: 192,
-              margin: 0,
-              color: {
-                dark: '#335eea',
-                light: '#00000000',
-              },
-              type: 'svg',
-            }
-          )
-            .then(svg => {
-              this.qrCodeSvg = `data:image/svg+xml;utf8,${encodeURIComponent(
-                svg
-              )}`;
-            })
-            .catch(err => {
-              console.error(err);
-            })
-            .finally(() => {
-              NProgress.done();
-            });
-        }
-        this.checkQrCodeLogin();
-      });
+      return loginQrCodeKey()
+        .then(result => {
+          console.log('[loginAccount] getQrCodeKey response:', result);
+          if (result?.code === 200) {
+            this.qrCodeKey = result.data.unikey;
+            QRCode.toString(
+              `https://music.163.com/login?codekey=${this.qrCodeKey}`,
+              {
+                width: 192,
+                margin: 0,
+                color: {
+                  dark: '#335eea',
+                  light: '#00000000',
+                },
+                type: 'svg',
+              }
+            )
+              .then(svg => {
+                this.qrCodeSvg = `data:image/svg+xml;utf8,${encodeURIComponent(
+                  svg
+                )}`;
+              })
+              .catch(err => {
+                console.error('[loginAccount] QRCode.toString error:', err);
+              })
+              .finally(() => {
+                NProgress.done();
+              });
+          } else {
+            console.warn('[loginAccount] getQrCodeKey code !== 200:', result);
+          }
+          this.checkQrCodeLogin();
+        })
+        .catch(err => {
+          console.error('[loginAccount] getQrCodeKey failed:', err);
+          this.qrCodeInformation = '无法连接服务器，请检查网络后刷新重试';
+        });
     },
     checkQrCodeLogin() {
       // 清除二维码检测
