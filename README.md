@@ -20,7 +20,9 @@
 
 <video src="https://github.com/Yyyangshenghao/YPM-Visualizer/releases/download/v0.1.0-visualizer/visualizer-demo.mp4" controls autoplay loop muted width="100%"></video>
 
-![3D Visualizer](images/visualizer.jpg)
+| 封面粒子场景 | 地形音频场景 |
+|:---:|:---:|
+| ![Cover Particle](images/visualizer.jpg) | ![Terrain](images/visualizer-terrain.png) |
 
 | 功能 | 说明 |
 |------|------|
