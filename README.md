@@ -18,6 +18,8 @@
 
 > 在原版歌词界面基础上，新增沉浸式 3D 音频可视化模式。
 
+<video src="https://github.com/Yyyangshenghao/YPM-Visualizer/releases/download/v0.1.0-visualizer/visualizer-demo.mp4" controls autoplay loop muted width="100%"></video>
+
 ![3D Visualizer](images/visualizer.jpg)
 
 | 功能 | 说明 |
