@@ -265,6 +265,17 @@
       </div>
       <div class="item">
         <div class="left">
+          <div class="title">3D 歌词背景</div>
+        </div>
+        <div class="right">
+          <select v-model="visualizerType">
+            <option value="terrain">地形</option>
+            <option value="cover">封面粒子</option>
+          </select>
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
           <div class="title"> {{ $t('settings.lyricFontSize.text') }} </div>
         </div>
         <div class="right">
@@ -1077,6 +1088,17 @@ export default {
       set(value) {
         this.$store.commit('updateSettings', {
           key: 'showLyricsTranslation',
+          value,
+        });
+      },
+    },
+    visualizerType: {
+      get() {
+        return this.settings.visualizerType || 'terrain';
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'visualizerType',
           value,
         });
       },

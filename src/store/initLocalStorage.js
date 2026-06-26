@@ -25,6 +25,7 @@ let localStorage = {
     showLyricsTranslation: true,
     lyricsBackground: true,
     lyricsMode: 'classic', // 'classic' | 'visualizer'
+    visualizerType: 'terrain', // 3D 歌词背景：'terrain' 地形 | 'cover' 封面粒子
     enableOsdlyricsSupport: false,
     closeAppOption: 'ask',
     enableDiscordRichPresence: false,

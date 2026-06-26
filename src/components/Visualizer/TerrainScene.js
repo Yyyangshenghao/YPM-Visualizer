@@ -41,6 +41,11 @@ export class TerrainScene {
     this.lastBeatEnergy = 0;
     this.frameSkip = 0;
 
+    // 渲染帧率上限：背景可视化 30fps 已足够流畅，可在高刷屏上大幅降低 GPU/CPU 占用
+    this.targetFPS = 30;
+    this._frameInterval = 1000 / this.targetFPS;
+    this._lastFrameTime = 0;
+
     // 波纹系统（ring buffer 8 个）
     this.ripples = new Array(8).fill(null).map(() => ({
       pos: new THREE.Vector2(),
@@ -80,9 +85,11 @@ export class TerrainScene {
     );
     this.camera.position.set(35, 28, 40);
     this.camera.lookAt(0, 0, 0);
+    // 把地形视觉中心右移，给左侧歌词让出空间
+    this._applyViewOffset();
 
     // 渲染器
-    this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
     this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     this.container.appendChild(this.renderer.domElement);
@@ -185,18 +192,37 @@ export class TerrainScene {
     this.lastBeatEnergy = audioData.energy;
   }
 
+  /** 通过 view offset 把渲染内容整体右移（负 x 偏移 = 内容右移） */
+  _applyViewOffset() {
+    const shiftX = -this.width * 0.18;
+    this.camera.setViewOffset(
+      this.width,
+      this.height,
+      shiftX,
+      0,
+      this.width,
+      this.height
+    );
+  }
+
   resize() {
     if (this.isDisposed) return;
     this.width = this.container.clientWidth;
     this.height = this.container.clientHeight;
     this.camera.aspect = this.width / this.height;
-    this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.width, this.height);
+    // setViewOffset 内部会调用 updateProjectionMatrix
+    this._applyViewOffset();
   }
 
   _animate() {
     if (this.isDisposed) return;
     this.animationId = requestAnimationFrame(this._animate);
+
+    // 帧率限流：未到目标帧间隔则跳过本次渲染
+    const nowMs = performance.now();
+    if (nowMs - this._lastFrameTime < this._frameInterval) return;
+    this._lastFrameTime = nowMs;
 
     const elapsed = this.clock.getElapsedTime();
     this.material.uniforms.uTime.value = elapsed;

@@ -254,6 +254,14 @@ export class AudioAnalyzer {
 
   /**
    * 释放资源。gainNode → destination 保持连接，音频继续播放。
+   *
+   * 全局 window.yesplaymusic 状态的生命周期与复用意图：
+   * - _sharedAudioCtx：有意长期复用，必须在用户手势中创建以规避自动暂停策略，
+   *   故 dispose 不清理，下次进入可视化时 _ensureGraph 直接复用。
+   * - _sharedSource：同样不清理。createMediaElementSource 对同一 <audio> 重复调用会抛错，
+   *   重新进入可视化时 init() 依赖它作为兜底，保证「切歌/重入时音频通路不中断」。
+   * - _lastAudioElement：仅用于 init() 判断是否需要换 source，dispose 后实例 source 已置 null，
+   *   needNewSource 必为 true，该全局值不再参与判定，故在此清理以释放对旧 <audio> 元素的引用、利于 GC。
    */
   dispose() {
     // source → destination 直连，绕过 gainNode，保证切回经典模式后音频继续播放
@@ -271,6 +279,11 @@ export class AudioAnalyzer {
     this.source = null;
     this.gainNode = null;
     this.audioCtx = null;
+
+    // 释放对旧 <audio> 元素的全局引用（保留 _sharedAudioCtx / _sharedSource 的复用设计）
+    if (window.yesplaymusic) {
+      window.yesplaymusic._lastAudioElement = null;
+    }
   }
 }
 
