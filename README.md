@@ -18,12 +18,7 @@
 
 > 在原版歌词界面基础上，新增沉浸式 3D 音频可视化模式。
 
-<!-- 3D 可视化截图占位 -->
-<!-- 替换说明：将截图放到 images/ 目录，取消下方注释即可 -->
-<!-- ![3D Visualizer](images/visualizer.png) -->
-<!-- ![3D Visualizer Dark](images/visualizer-dark.png) -->
-
-**效果预览**（截图即将更新）
+![3D Visualizer](images/visualizer.jpg)
 
 | 功能 | 说明 |
 |------|------|
