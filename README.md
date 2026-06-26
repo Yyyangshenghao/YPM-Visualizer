@@ -153,6 +153,8 @@ yarn electron:build-mac # 打包 macOS，产物在 dist_electron/
 本项目基于以下开源项目构建：
 
 - [qier222/YesPlayMusic](https://github.com/qier222/YesPlayMusic) — 播放器主体，MIT License
+- [yin-yizhen/sonic-topography](https://github.com/yin-yizhen/sonic-topography) — 3D 地形音频可视化场景灵感来源
+- [XxHuberrr/Mineradio](https://github.com/XxHuberrr/Mineradio) — 封面粒子特效灵感来源
 - [Binaryify/NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi) — 网易云 API
 - [Three.js](https://threejs.org) — 3D 渲染引擎
 - [Howler.js](https://howlerjs.com) — 音频播放
